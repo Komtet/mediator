@@ -1,0 +1,12 @@
+language: python
+python:
+  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "nightly"
+install:
+  - pip install coverage
+script:
+  - coverage run --source mediator.py setup.py test -q && coverage report -m
