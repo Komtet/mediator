@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+import six
+
 
 class Mediator(object):
     def __init__(self):
@@ -72,6 +74,18 @@ class Mediator(object):
                 raise ValueError('Invalid params for event "%s"' % event_name)
 
 
+class EventType(type):
+    def __call__(cls, *args, **kwargs):
+        event = type.__call__(cls, *args, **kwargs)
+        if event.get_name() is None:
+            event.set_name(str(cls))
+        return event
+
+    def __str__(cls):
+        return cls.__name__
+
+
+@six.add_metaclass(EventType)
 class Event(object):
     def __init__(self, name=None):
         self.__name = name

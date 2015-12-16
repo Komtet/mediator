@@ -139,5 +139,8 @@ class TestSubscriberInterface(TestCase):
 class TestEvent(TestCase):
     def test_event(self):
         event = Event()
-        event.set_name('event')
-        self.assertEqual(event.get_name(), 'event')
+        self.assertEqual(event.get_name(), 'Event')
+        event.set_name('new-event')
+        self.assertEqual(event.get_name(), 'new-event')
+        event = Event('new-event')
+        self.assertEqual(event.get_name(), 'new-event')
