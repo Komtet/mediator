@@ -5,14 +5,22 @@ with open('README.rst', 'r') as readme:
 
 setup(
     name='mediator',
-    version='0.1.0',
+    version='0.2.0.dev0',
+    keywords=['event', 'events', 'mediator', 'dispatcher', 'event dispatcher'],
     description='A library implements the Mediator pattern to make your code extensible',
+    license='MIT',
+    classifiers=[
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+    ],
     long_description=long_description,
     author='Kilte Leichnam',
     author_email='nwotnbm@gmail.com',
     url='https://github.com/Kilte/mediator',
     py_modules=['mediator'],
-    license='MIT',
-    keywords=['event', 'events', 'mediator', 'dispatcher', 'event dispatcher'],
-    test_suite='tests'
+    install_requires=['six'],
+    test_suite='tests',
+    tests_require=['coverage']
 )
