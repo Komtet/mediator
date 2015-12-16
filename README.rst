@@ -200,7 +200,7 @@ Contributing
 - Fork and clone it
 - Create your feature branch (git checkout -b awesome-feature)
 - Make your changes
-- Write/update tests, if it's necessary
+- Write/update tests, if it's necessary (make buildout && make tests)
 - Update README.md, if it's necessary
 - Push your branch (git push origin awesome-feature)
 - Send a pull request
