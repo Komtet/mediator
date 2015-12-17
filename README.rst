@@ -184,6 +184,39 @@ Using Subscribers
     print(event3.success)
     # True
 
+Using a class name as event name
+--------------------------------
+
+.. code:: python
+
+    class EventWithoutName(Event):
+         def __init__(self):
+             super(Event1, self).__init__()
+             self.attr = 'val'
+
+
+     def on_event_without_name(event):
+        event.attr = 'new-val'
+
+     m.add_listener('EventWithoutName', on_event_without_name)
+     m.dispatch(EventWithoutName())
+
+Adding listeners using decorator
+--------------------------------
+
+.. code:: python
+
+    import sys
+
+
+    @EventWithoutName.listen(priority=255)  # Priority is optional
+    def another_event_without_name_listener(event):
+        event.attr = 'another-val'
+
+    # Don't forget to call Mediator.scan(module)!
+    m.scan(sys.modules[__name__])
+    m.dispatch(EventWithoutName())
+
 See source code and tests for more information.
 
 Changelog
