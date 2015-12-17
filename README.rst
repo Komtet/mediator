@@ -222,6 +222,12 @@ See source code and tests for more information.
 Changelog
 =========
 
+0.2.0 (17.12.2015)
+------------------
+
+- Automatic event name detection based on a class name.
+- Added `%Event%.listen` decorator.
+
 0.1.0 (19.11.2015)
 ------------------
 
