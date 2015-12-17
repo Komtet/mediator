@@ -1,3 +1,5 @@
+import sys
+
 from time import time
 from unittest import TestCase
 
@@ -144,3 +146,24 @@ class TestEvent(TestCase):
         self.assertEqual(event.get_name(), 'new-event')
         event = Event('new-event')
         self.assertEqual(event.get_name(), 'new-event')
+
+
+class VenusianEvent(Event):
+    def __init__(self):
+        super(VenusianEvent, self).__init__()
+        self.success = False
+
+
+@VenusianEvent.listen()
+def venusian_event_listener(event):
+    event.success = True
+
+
+class TestEventDecorator(TestCase):
+    def test_event_decorator(self):
+        mediator = Mediator()
+        mediator.scan(sys.modules[__name__])
+        event = VenusianEvent()
+        self.assertFalse(event.success)
+        mediator.dispatch(event)
+        self.assertTrue(event.success)

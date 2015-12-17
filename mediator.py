@@ -1,6 +1,11 @@
-from collections import OrderedDict
+import collections
 
 import six
+import venusian
+
+__all__ = ['Mediator', 'Event', 'SubscriberInterface']
+
+VENUSIAN_CATEGORY = 'mediator'
 
 
 class Mediator(object):
@@ -38,7 +43,7 @@ class Mediator(object):
             else:
                 priority = 0
         self._listeners[event_name][priority] = listener
-        self._listeners[event_name] = OrderedDict(sorted(
+        self._listeners[event_name] = collections.OrderedDict(sorted(
             self._listeners[event_name].items(),
             key=lambda item: item[0]
         ))
@@ -73,16 +78,17 @@ class Mediator(object):
             else:
                 raise ValueError('Invalid params for event "%s"' % event_name)
 
+    def scan(self, target):
+        scanner = venusian.Scanner(mediator=self)
+        scanner.scan(target, categories=[VENUSIAN_CATEGORY])
+
 
 class EventType(type):
     def __call__(cls, *args, **kwargs):
         event = type.__call__(cls, *args, **kwargs)
         if event.get_name() is None:
-            event.set_name(str(cls))
+            event.set_name(cls.__name__)
         return event
-
-    def __str__(cls):
-        return cls.__name__
 
 
 @six.add_metaclass(EventType)
@@ -95,6 +101,18 @@ class Event(object):
 
     def get_name(self):
         return self.__name
+
+    @classmethod
+    def listen(cls, priority=None):
+        event_name = cls.__name__
+
+        def decorator(listener):
+            def callback(scanner, name, ob):
+                scanner.mediator.add_listener(event_name, listener, priority)
+            venusian.attach(listener, callback, category=VENUSIAN_CATEGORY)
+            return listener
+
+        return decorator
 
 
 class SubscriberInterface(object):
