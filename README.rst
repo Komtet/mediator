@@ -222,6 +222,11 @@ See source code and tests for more information.
 Changelog
 =========
 
+0.2.1 (18.12.2015)
+------------------
+
+- Added ``Mediator.set_scanner`` method in order to allow use custom scanner instance.
+
 0.2.0 (17.12.2015)
 ------------------
 

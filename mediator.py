@@ -9,8 +9,12 @@ VENUSIAN_CATEGORY = 'mediator'
 
 
 class Mediator(object):
-    def __init__(self):
+    def __init__(self, scanner=None):
         self._listeners = {}
+        self._scanner = None
+
+    def set_scanner(self, scanner):
+        self._scanner = scanner
 
     def dispatch(self, event):
         if not isinstance(event, Event):
@@ -79,8 +83,9 @@ class Mediator(object):
                 raise ValueError('Invalid params for event "%s"' % event_name)
 
     def scan(self, target):
-        scanner = venusian.Scanner(mediator=self)
-        scanner.scan(target, categories=[VENUSIAN_CATEGORY])
+        if self._scanner is None:
+            self._scanner = venusian.Scanner(mediator=self)
+        self._scanner.scan(target, categories=[VENUSIAN_CATEGORY])
 
 
 class EventType(type):

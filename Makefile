@@ -25,7 +25,7 @@ tests:    ## Run tests
 		echo;\
 	done
 	@rm __pycache__ -r
-	@rm mediator.pyc tests.pyc
+	@rm mediator.pyc tests.pyc stubs.pyc
 	@rm mediator.egg-info -r
 	@rm .coverage
 
