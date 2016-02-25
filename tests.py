@@ -1,8 +1,6 @@
 from time import time
 from unittest import TestCase
 
-from venusian import Scanner
-
 import stubs
 
 from mediator import Mediator, Event, SubscriberInterface
@@ -156,15 +154,14 @@ class TestEventDecorator(TestCase):
         event = stubs.VenusianEvent()
         mediator.dispatch(event)
         self.assertFalse(event.success)
-        mediator.scan(stubs)
+        mediator.scan(package=stubs)
         mediator.dispatch(event)
         self.assertTrue(event.success)
 
         mediator = Mediator()
-        mediator.set_scanner(Scanner(mediator=mediator))
         event = stubs.VenusianEvent()
         mediator.dispatch(event)
         self.assertFalse(event.success)
-        mediator.scan(stubs)
+        mediator.scan(package=stubs)
         mediator.dispatch(event)
         self.assertTrue(event.success)
