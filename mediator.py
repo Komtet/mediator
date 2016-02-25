@@ -1,6 +1,6 @@
 import collections
+import inspect
 
-import six
 import venusian
 
 __all__ = ['Mediator', 'Event', 'SubscriberInterface']
@@ -15,11 +15,8 @@ class Mediator(object):
 
     def dispatch(self, event):
         if not isinstance(event, Event):
-            event_name = event
-            event = Event()
-            event.set_name(event_name)
-        else:
-            event_name = event.get_name()
+            raise TypeError('Expects instance of Event')
+        event_name = event.get_event_name()
         if event_name in self._listeners:
             for listener in self._listeners[event_name].values():
                 listener(event)
@@ -62,7 +59,7 @@ class Mediator(object):
 
     def add_subscriber(self, subscriber):
         if not isinstance(subscriber, SubscriberInterface):
-            raise TypeError('Unexpected subscriber type given')
+            raise TypeError('Expects instance of SubscriberInterface')
         for event_name, params in subscriber.get_subscribed_events().items():
             if isinstance(params, str):
                 self.add_listener(event_name, getattr(subscriber, params))
@@ -85,28 +82,16 @@ class Mediator(object):
         self._scanner.scan(**kwargs)
 
 
-class EventType(type):
-    def __call__(cls, *args, **kwargs):
-        event = type.__call__(cls, *args, **kwargs)
-        if event.get_name() is None:
-            event.set_name(cls.__name__)
-        return event
-
-
-@six.add_metaclass(EventType)
 class Event(object):
-    def __init__(self, name=None):
-        self.__name = name
+    event_name = None
 
-    def set_name(self, name):
-        self.__name = name
-
-    def get_name(self):
-        return self.__name
+    @classmethod
+    def get_event_name(cls):
+        return cls.__name__ if cls.event_name is None else cls.event_name
 
     @classmethod
     def listen(cls, priority=None):
-        event_name = cls.__name__
+        event_name = cls.get_event_name()
 
         def decorator(listener):
             def callback(scanner, name, ob):
@@ -123,7 +108,8 @@ class SubscriberInterface(object):
 
 
 def _get_event_name(event):
-    if isinstance(event, Event):
-        return event.get_name()
-    else:
+    if isinstance(event, str):
         return event
+    if inspect.isclass(event) and issubclass(event, Event):
+        return event.get_event_name()
+    raise TypeError('Expects subclass of Event or str')

@@ -20,7 +20,7 @@ setup(
     author_email='nwotnbm@gmail.com',
     url='https://github.com/Kilte/mediator',
     py_modules=['mediator'],
-    install_requires=['six', 'venusian'],
+    install_requires=['venusian'],
     test_suite='tests',
     tests_require=['coverage']
 )

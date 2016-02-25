@@ -14,6 +14,18 @@ class Listener(object):
         self.events.append(event)
 
 
+class EventOne(Event):
+    event_name = 'event_one'
+
+
+class EventTwo(Event):
+    event_name = 'event_two'
+
+
+class EventThree(Event):
+    event_name = 'event_three'
+
+
 class Subscriber(SubscriberInterface):
     def __init__(self):
         self.results = {}
@@ -35,78 +47,100 @@ class Subscriber(SubscriberInterface):
 
     def get_subscribed_events(self):
         return {
-            'test_event': [
+            'event_one': [
                 ['middle'],
                 ['first', -255],
                 ['last', 255],
             ],
-            'test_another_event': 'another_event_handler',
-            'test_even_more_event': ['even_more_event_handler']
+            'event_two': 'another_event_handler',
+            'event_three': ['even_more_event_handler']
         }
 
 
 class BadSubscriberOne(SubscriberInterface):
     def get_subscribed_events(self):
-        return {
-            'test_event': None
-        }
+        return {'test_event': None}
 
 
 class BadSubscriberTwo(SubscriberInterface):
     def get_subscribed_events(self):
-        return {
-            'test_event': []
-        }
+        return {'test_event': []}
 
 
 class TestMediator(TestCase):
-    def test_dispatch_with_event(self):
+    def test_dispatch_failed(self):
+        meditator = Mediator()
+        with self.assertRaises(TypeError) as context:
+            meditator.dispatch('unexpected_event')
+        self.assertEqual(str(context.exception), 'Expects instance of Event')
+
+    def test_add_listener_with_object(self):
         mediator = Mediator()
-        event = Event()
-        event.set_name('test_event')
         listener = Listener()
-        mediator.add_listener(event, listener)
+        mediator.add_listener(Event, listener)
+        event = Event()
         mediator.dispatch(event)
         self.assertEqual(len(listener.events), 1)
         self.assertIs(listener.events[0], event)
 
-    def test_dispatch_with_str(self):
+    def test_add_listener_with_string(self):
         mediator = Mediator()
         listener = Listener()
-        mediator.add_listener('test_event', listener)
-        event = mediator.dispatch('test_event')
+        mediator.add_listener('Event', listener)
+        event = Event()
+        event = mediator.dispatch(event)
         self.assertEqual(len(listener.events), 1)
         self.assertIs(listener.events[0], event)
+
+    def test_add_listener_with_same_priority_failed(self):
+        mediator = Mediator()
+        mediator.add_listener(Event, lambda event: None, 0)
+        with self.assertRaises(IndexError):
+            mediator.add_listener(Event, lambda event: None, 0)
+
+    def test_add_listener_with_invalid_event_failed(self):
+        mediator = Mediator()
+        listener = Listener()
+        with self.assertRaises(TypeError) as context:
+            mediator.add_listener(1, listener)
+        self.assertEqual(str(context.exception), 'Expects subclass of Event or str')
 
     def test_remove_listener(self):
         mediator = Mediator()
         listener1 = Listener()
         listener2 = Listener()
-        mediator.add_listener('test_event', listener1)
-        mediator.add_listener('test_event', listener2)
-        mediator.dispatch('test_event')
-        mediator.remove_listener('test_event', listener1)
-        mediator.dispatch('test_event')
+        mediator.add_listener(Event, listener1)
+        mediator.add_listener(Event, listener2)
+        event = Event()
+        mediator.dispatch(event)
+        mediator.remove_listener(Event, listener1)
+        mediator.dispatch(event)
         self.assertEqual(len(listener1.events), 1)
         self.assertEqual(len(listener2.events), 2)
-        mediator.remove_listener('test_event')
-        mediator.dispatch('test_event')
+        mediator.remove_listener(Event)
+        mediator.dispatch(event)
         self.assertEqual(len(listener1.events), 1)
         self.assertEqual(len(listener2.events), 2)
 
-    def test_add_listener_with_same_priority_failed(self):
+    def test_remove_listener_with_invalid_event_failed(self):
         mediator = Mediator()
-        mediator.add_listener('test_event', lambda event: None, 0)
-        with self.assertRaises(IndexError):
-            mediator.add_listener('test_event', lambda event: None, 0)
+        listener = Listener()
+        with self.assertRaises(TypeError) as context:
+            mediator.remove_listener(1, listener)
+        self.assertEqual(str(context.exception), 'Expects subclass of Event or str')
 
     def test_add_subscriber(self):
         mediator = Mediator()
-        subscriber = Subscriber()
-        with self.assertRaises(TypeError):
+
+        with self.assertRaises(TypeError) as context:
             mediator.add_subscriber(object())
+        self.assertEqual(str(context.exception), 'Expects instance of SubscriberInterface')
+
+        subscriber = Subscriber()
         mediator.add_subscriber(subscriber)
-        mediator.dispatch('test_event')
+
+        event = EventOne()
+        mediator.dispatch(event)
         self.assertEqual(len(subscriber.results), 3)
         events = [result[0] for result in subscriber.results.values()]
         self.assertIs(events[0], events[1])
@@ -118,10 +152,12 @@ class TestMediator(TestCase):
         )
         self.assertTrue(first < middle < last, '%r %r %r' % (first, middle, last))
 
-        event = mediator.dispatch('test_another_event')
+        event = EventTwo()
+        mediator.dispatch(event)
         self.assertIs(subscriber.results['another'], event)
 
-        event = mediator.dispatch('test_even_more_event')
+        event = EventThree()
+        mediator.dispatch(event)
         self.assertIs(subscriber.results['even_more'], event)
 
         with self.assertRaises(ValueError):
@@ -139,25 +175,15 @@ class TestSubscriberInterface(TestCase):
 
 
 class TestEvent(TestCase):
-    def test_event(self):
-        event = Event()
-        self.assertEqual(event.get_name(), 'Event')
-        event.set_name('new-event')
-        self.assertEqual(event.get_name(), 'new-event')
-        event = Event('new-event')
-        self.assertEqual(event.get_name(), 'new-event')
+    def test_get_event_name(self):
+        self.assertEqual(Event.get_event_name(), 'Event')
+        self.assertEqual(EventOne.get_event_name(), 'event_one')
+        self.assertEqual(EventTwo.get_event_name(), 'event_two')
+        self.assertEqual(EventThree.get_event_name(), 'event_three')
 
 
 class TestEventDecorator(TestCase):
     def test_event_decorator(self):
-        mediator = Mediator()
-        event = stubs.VenusianEvent()
-        mediator.dispatch(event)
-        self.assertFalse(event.success)
-        mediator.scan(package=stubs)
-        mediator.dispatch(event)
-        self.assertTrue(event.success)
-
         mediator = Mediator()
         event = stubs.VenusianEvent()
         mediator.dispatch(event)
