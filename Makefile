@@ -1,6 +1,5 @@
 .PHONY: all buildout tests publish
 
-SETUPTOOLS_VERSION = "19.0"
 BOOTSTRAP_BUILDOUT = "https://bootstrap.pypa.io/bootstrap-buildout.py"
 
 all:
@@ -12,7 +11,7 @@ buildout: ## Setup development environment
 	@wget $(BOOTSTRAP_BUILDOUT)
 	@for v in 2 3; do \
 		mkdir -p buildout/$$v;\
-		python$$v bootstrap-buildout.py -c py$$v.cfg --setuptools-version=$(SETUPTOOLS_VERSION);\
+		python$$v bootstrap-buildout.py -c py$$v.cfg;\
 		buildout/$$v/bin/buildout -c py$$v.cfg;\
 		rm .installed.cfg;\
 	done
