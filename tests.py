@@ -1,5 +1,3 @@
-import sys
-
 from time import time
 from unittest import TestCase
 
