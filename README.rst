@@ -35,6 +35,20 @@ Usage
 
     m = Mediator()
 
+Defining events
+----------------------
+
+.. code:: python
+
+    from mediator import Event
+
+
+    class EventOne(Event):
+        pass
+
+
+    class EventTwo(Event):
+        event_name = 'event_two'
 
 Adding a listener
 -----------------
@@ -44,17 +58,24 @@ Adding a listener
     def event_listener(event):
         print('Got event: %r' % event)
 
-    m.add_listener('event_name', event_listener)
+    m.add_listener(EventOne, event_listener)
+    # or m.add_listener('EventOne', event_listener)
+    m.add_listener('event_two', event_listener)
+    # or m.add_listener(EventTwo, event_listener)
 
 Triggering events
 -----------------
 
 .. code:: python
 
-    event = m.dispatch('event_name')
-    # Got event: <mediator.Event object at 0x7f954bc2b250>
-    print(event)
-    # <mediator.Event object at 0x7f954bc2b250>
+    event1 = EventOne()
+    event2 = EventTwo()
+
+    m.dispatch(event1)
+    # Got event: <EventOne object at 0x7f954bc2b250>
+
+    m.dispatch(event2)
+    # Got event: <EventTwo object at 0x7f954bbbd510>
 
 Removing a listener
 -------------------
@@ -64,10 +85,10 @@ Removing a listener
     def another_listener(event):
         print('Got another event: %r' % event)
 
-    m.add_listener('event_name', another_listener)
-    m.remove_listener('event_name', event_listener)
-    m.dispatch('event_name')
-    # Got another event: <mediator.Event object at 0x7f954bbbd510>
+    m.add_listener(EventOne, another_listener)
+    m.remove_listener('EventOne', event_listener)
+    m.dispatch(event1)
+    # Got another event: <EventOne object at 0x7f954bc2b250>
 
 
 Removing all listeners
@@ -75,8 +96,8 @@ Removing all listeners
 
 .. code:: python
 
-    m.remove_listener('event_name')
-    m.dispatch('event_name')
+    m.remove_listener('EventOne')
+    m.dispatch(event1)
     # Nothing was happened
 
 
@@ -85,34 +106,11 @@ Using priorities
 
 .. code:: python
 
-    m.add_listener('test_event', another_listener, -255)
-    m.add_listener('test_event', event_listener, 255)
-    m.dispatch('test_event')
-    # Got another event: <mediator.Event object at 0x7f954bbbd510>
-    # Got event: <mediator.Event object at 0x7f954bbbd510>
-
-
-Defining custom events
-----------------------
-
-.. code:: python
-
-    from mediator import Event
-
-    def my_event_listener(event):
-        event.params = 'params'
-
-
-    class MyEvent(Event):
-        def __init__(self):
-            super(MyEvent, self).__init__('my_event')
-            self.params = None
-
-    event = MyEvent()
-    m.add_listener('my_event', my_event_listener)
-    m.dispatch(event)
-    print(event.params)
-    # params
+    m.add_listener('EventOne', another_listener, -255)
+    m.add_listener('EventOne', event_listener, 255)
+    m.dispatch(event1)
+    # Got another event: <EventOne object at 0x7f954bc2b250>
+    # Got event: <EventOne object at 0x7f954bc2b250>
 
 
 Using Subscribers
@@ -151,19 +149,21 @@ Using Subscribers
             }
 
     class Event1(Event):
-         def __init__(self):
-             super(Event1, self).__init__('event1')
+        event_name = 'event1'
+
+        def __init__(self):
              self.first = False
              self.middle = False
              self.last = False
 
     class Event2(Event):
+        event_name = 'event2'
+
          def __init__(self):
-             super(Event2, self).__init__('event2')
              self.success = True
 
     class Event3(Event2):
-        pass
+        event_name = 'event3'
 
     subscriber = Subscriber()
     event1 = Event1()
@@ -184,22 +184,6 @@ Using Subscribers
     print(event3.success)
     # True
 
-Using a class name as event name
---------------------------------
-
-.. code:: python
-
-    class EventWithoutName(Event):
-         def __init__(self):
-             super(Event1, self).__init__()
-             self.attr = 'val'
-
-
-     def on_event_without_name(event):
-        event.attr = 'new-val'
-
-     m.add_listener('EventWithoutName', on_event_without_name)
-     m.dispatch(EventWithoutName())
 
 Adding listeners using decorator
 --------------------------------
@@ -209,18 +193,29 @@ Adding listeners using decorator
     import sys
 
 
-    @EventWithoutName.listen(priority=255)  # Priority is optional
-    def another_event_without_name_listener(event):
-        event.attr = 'another-val'
+    @SomeEvent.listen(priority=255)  # Priority is optional
+    def some_event_listener(event):
+        event.attr = 'value'
 
-    # Don't forget to call Mediator.scan(module)!
-    m.scan(sys.modules[__name__])
-    m.dispatch(EventWithoutName())
+    # Don't forget to call Mediator.scan(package=package)!
+    m.scan(package=sys.modules[__name__])
+    m.dispatch(SomeEvent())
 
 See source code and tests for more information.
 
 Changelog
 =========
+
+
+0.3.0 (25.02.2016)
+------------------
+
+- ``Mediator.__init__`` and ``Mediator.scan`` now takes keyword arguments only.
+- Removed ``Mediator.set_scanner`` method.
+- ``Mediator.dispatch()`` now takes event instances only.
+- ``Mediator.add_listener`` and ``Mediator.remove_listener`` takes subclass of ``Event`` or ``str``.
+- ``Event.get_name()`` and ``Event.set_name()`` were removed in favor of ``Event.get_event_name()`` and ``Event.event_name`` class attribute.
+- And now there is no requirement to call ``super().__init__()`` in your own events.
 
 0.2.1 (18.12.2015)
 ------------------
@@ -231,7 +226,7 @@ Changelog
 ------------------
 
 - Automatic event name detection based on a class name.
-- Added `%Event%.listen` decorator.
+- Added ``%Event%.listen`` decorator.
 
 0.1.0 (19.11.2015)
 ------------------
