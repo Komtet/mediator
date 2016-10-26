@@ -12,6 +12,7 @@ class Mediator(object):
     def __init__(self, **kwargs):
         self._listeners = {}
         self._scanner = venusian.Scanner(mediator=self, **kwargs)
+        super(Mediator, self).__init__(**kwargs)
 
     def dispatch(self, event):
         if not isinstance(event, Event):
