@@ -11,4 +11,4 @@ matrix:
 install:
   - pip install coverage
 script:
-  - coverage run --source mediator.py setup.py test -q && coverage report -m
+  - coverage run --source mediator setup.py test -q && coverage report -m
