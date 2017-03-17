@@ -210,6 +210,12 @@ Changelog
 =========
 
 
+0.4.0 (17.03.2017)
+------------------
+
+- Fixed multiple inheritance support
+- Improved venusian support
+
 0.3.0 (25.02.2016)
 ------------------
 

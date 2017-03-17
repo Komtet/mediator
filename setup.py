@@ -5,7 +5,7 @@ with open('README.rst', 'r') as readme:
 
 setup(
     name='mediator',
-    version='0.3.0',
+    version='0.4.0',
     keywords=['event', 'events', 'mediator', 'dispatcher', 'event dispatcher'],
     description='A library implements the Mediator pattern to make your code extensible',
     license='MIT',
