@@ -9,10 +9,9 @@ VENUSIAN_CATEGORY = 'mediator'
 
 
 class Mediator(object):
-    def __init__(self, **kwargs):
+    def __init__(self):
         self._listeners = {}
-        self._scanner = venusian.Scanner(mediator=self, **kwargs)
-        super(Mediator, self).__init__(**kwargs)
+        super(Mediator, self).__init__()
 
     def dispatch(self, event):
         if not isinstance(event, Event):
@@ -77,11 +76,6 @@ class Mediator(object):
             else:
                 raise ValueError('Invalid params for event "%s"' % event_name)
 
-    def scan(self, **kwargs):
-        if 'categories' not in kwargs:
-            kwargs['categories'] = [VENUSIAN_CATEGORY]
-        self._scanner.scan(**kwargs)
-
 
 class Event(object):
     event_name = None
@@ -91,13 +85,13 @@ class Event(object):
         return cls.__name__ if cls.event_name is None else cls.event_name
 
     @classmethod
-    def listen(cls, priority=None):
+    def listen(cls, priority=None, instance='mediator', category=VENUSIAN_CATEGORY):
         event_name = cls.get_event_name()
 
         def decorator(listener):
             def callback(scanner, name, ob):
-                scanner.mediator.add_listener(event_name, listener, priority)
-            venusian.attach(listener, callback, category=VENUSIAN_CATEGORY)
+                getattr(scanner, instance).add_listener(event_name, listener, priority)
+            venusian.attach(listener, callback, category=category)
             return listener
 
         return decorator

@@ -191,14 +191,17 @@ Adding listeners using decorator
 .. code:: python
 
     import sys
+    import venusian
+
+    from mediator import VENUSIAN_CATEGORY
 
 
-    @SomeEvent.listen(priority=255)  # Priority is optional
+    @SomeEvent.listen(priority=255, instance='mediator', category=VENUSIAN_CATEGORY)  # All args are optional
     def some_event_listener(event):
         event.attr = 'value'
 
-    # Don't forget to call Mediator.scan(package=package)!
-    m.scan(package=sys.modules[__name__])
+    scanner = venusian.Scanner(mediator=mediator)
+    scanner.scan(package=sys.modules[__name__], categories=[VENUSIAN_CATEGORY])
     m.dispatch(SomeEvent())
 
 See source code and tests for more information.

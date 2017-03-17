@@ -3,7 +3,8 @@ from unittest import TestCase
 
 import stubs
 
-from mediator import Mediator, Event, SubscriberInterface
+from mediator import Mediator, Event, SubscriberInterface, VENUSIAN_CATEGORY
+from venusian import Scanner
 
 
 class Listener(object):
@@ -187,10 +188,21 @@ class TestEvent(TestCase):
 class TestEventDecorator(TestCase):
     def test_event_decorator(self):
         mediator = Mediator()
+        scanner = Scanner(mediator=mediator)
         event = stubs.VenusianEvent()
         mediator.dispatch(event)
         self.assertFalse(event.success)
-        mediator.scan(package=stubs)
+        scanner.scan(package=stubs, categories=[VENUSIAN_CATEGORY])
+        mediator.dispatch(event)
+        self.assertTrue(event.success)
+
+    def test_event_decorator_with_custom_args(self):
+        mediator = Mediator()
+        scanner = Scanner(obj=mediator)
+        event = stubs.VenusianEventWithCategory()
+        mediator.dispatch(event)
+        self.assertFalse(event.success)
+        scanner.scan(package=stubs, categories=['custom-category'])
         mediator.dispatch(event)
         self.assertTrue(event.success)
 
