@@ -193,3 +193,18 @@ class TestEventDecorator(TestCase):
         mediator.scan(package=stubs)
         mediator.dispatch(event)
         self.assertTrue(event.success)
+
+
+class Mixin(object):
+    def __init__(self):
+        self.mixin_value = 'mixin-value'
+
+
+class MediatorWithMixin(Mediator, Mixin):
+    pass
+
+
+class TestMultiInheritance(TestCase):
+    def test_multi_inheritance(self):
+        mediator = MediatorWithMixin()
+        self.assertEqual(mediator.mixin_value, 'mixin-value')
