@@ -1,4 +1,4 @@
-from time import time
+from time import time, sleep
 from unittest import TestCase
 
 import stubs
@@ -34,9 +34,11 @@ class Subscriber(SubscriberInterface):
         self.results['first'] = (event, time())
 
     def middle(self, event):
+        sleep(0.01)
         self.results['middle'] = (event, time())
 
     def last(self, event):
+        sleep(0.01)
         self.results['last'] = (event, time())
 
     def another_event_handler(self, event):
