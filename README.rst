@@ -6,8 +6,8 @@ A library implements the Mediator pattern to make your code extensible.
 
 Inspired by `symfony/event-dispatcher <https://github.com/symfony/event-dispatcher>`_ component.
 
-.. image:: https://img.shields.io/travis/Kilte/mediator.svg?style=flat-square
-    :target: https://travis-ci.org/Kilte/mediator
+.. image:: https://img.shields.io/travis/Komtet/mediator.svg?style=flat-square
+    :target: https://travis-ci.org/Komtet/mediator
 
 Installation
 ============
@@ -22,7 +22,7 @@ Manually:
 
 .. code:: sh
 
-    $ git clone https://github.com/Kilte/mediator
+    $ git clone https://github.com/Komtet/mediator
     $ cd mediator
     # python setup.py install
 
